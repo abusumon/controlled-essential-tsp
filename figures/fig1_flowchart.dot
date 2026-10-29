@@ -1,0 +1,57 @@
+digraph GA {
+  graph [rankdir=TB, splines=ortho, nodesep=0.45, ranksep=0.32, fontname="Helvetica", bgcolor="white", pad=0.2, dpi=300];
+  node  [fontname="Helvetica", fontsize=10.5, shape=box, style="rounded,filled", fillcolor="#FFFFFF", color="#33415C", penwidth=1.2, margin="0.16,0.07"];
+  edge  [fontname="Helvetica", fontsize=9.5, color="#33415C", penwidth=1.1, arrowsize=0.7];
+
+  start  [label="Start", shape=oval, fillcolor="#1F3864", fontcolor="white", color="#1F3864"];
+  input  [label=<Read TSPLIB instance<BR/>N, E, p<SUB>m</SUB>, ρ, G, move M, rule R>, shape=parallelogram, margin="0.02,0.04", style="filled", fillcolor="#EEF2F8"];
+  init   [label="Initialise N random tours,  g ← 1"];
+  eval   [label="Compute tour lengths L(π)\nupdate best-so-far"];
+  stop   [label="g = G ?", shape=diamond, style="filled", fillcolor="#FFF4D6", color="#B7791F", margin="0.04,0.04"];
+  out    [label="Return best tour", shape=parallelogram, margin="0.02,0.04", style="filled", fillcolor="#EEF2F8"];
+  fin    [label="End", shape=oval, fillcolor="#1F3864", fontcolor="white", color="#1F3864"];
+
+  elite  [label="Rank tours\ncopy the E best (elites)"];
+  sel    [label="Roulette-wheel selection\nof N − E parents"];
+  cx     [label="Cyclic crossover\n→ children"];
+  ess    [label="R ∈ {EM, CEM} ?", shape=diamond, style="filled", fillcolor="#FFF4D6", color="#B7791F", margin="0.04,0.04"];
+  esset  [label=<Score edges by mean child fitness<BR/>mark top ρ|U| as essential (E<SUB>ess</SUB>)>, fillcolor="#F3EEF9", color="#6B46C1"];
+
+  pos    [label="For every child (elites included):\nnext position x by geometric skipping\npartner y uniform, y ≠ x"];
+  move   [label=<Propose move M(x, y)<BR/>removed edges ℛ(M), added edges A(M)>];
+  acc    [label="Passes test\nof rule R ?", shape=diamond, style="filled", fillcolor="#FFF4D6", color="#B7791F", margin="0.04,0.04"];
+  apply  [label="Apply move", fillcolor="#E6F4EA", color="#2F855A"];
+  skip   [label="Discard move", fillcolor="#FDECEC", color="#C53030"];
+  more   [label="More positions\nor children ?", shape=diamond, style="filled", fillcolor="#FFF4D6", color="#B7791F", margin="0.04,0.04"];
+  next   [label="Children become new population\ng ← g + 1"];
+
+  rules  [shape=plain, label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#33415C" BGCOLOR="#F7F9FC">
+      <TR><TD COLSPAN="2" ALIGN="LEFT"><B>Acceptance rules</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><B>Controlled</B></TD><TD ALIGN="LEFT">Δ(M) &gt; 10<SUP>−9</SUP>  (tour gets shorter)</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>EM</B></TD><TD ALIGN="LEFT">ℛ(M) ∩ E<SUB>ess</SUB> = ∅  (no essential edge removed)</TD></TR>
+      <TR><TD ALIGN="LEFT"><B>CEM</B></TD><TD ALIGN="LEFT">both tests, swap move only</TD></TR>
+    </TABLE>>];
+
+  start -> input -> init -> eval -> stop;
+  stop -> out  [xlabel="yes "];
+  out -> fin;
+  stop -> elite [xlabel="no "];
+  elite -> sel -> cx -> ess;
+  ess -> esset [xlabel="yes "];
+  ess -> pos   [xlabel="no "];
+  esset -> pos;
+  pos -> move -> acc;
+  acc -> apply [xlabel="yes "];
+  acc -> skip  [xlabel="no "];
+  apply -> more; skip -> more;
+  more -> pos  [xlabel="yes ", constraint=false];
+  more -> next [xlabel="no "];
+  next -> eval [constraint=false];
+  acc -> rules [style=dashed, arrowhead=none, color="#8A94A6", constraint=false];
+
+  {rank=same; stop; out; fin;}
+  {rank=same; ess; esset;}
+  {rank=same; acc; rules;}
+  {rank=same; apply; skip;}
+}
