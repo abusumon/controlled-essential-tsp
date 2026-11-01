@@ -1,0 +1,10 @@
+output/
+em_vs_c
+em_vs_c_diag
+em_vs_c_cem
+*.exe
+*.o
+.ipynb_checkpoints/
+__pycache__/
+.vscode/
+.history/
