@@ -1,10 +1,14 @@
 output/
+out/
 em_vs_c
 em_vs_c_diag
 em_vs_c_cem
+q1ga
+localopt
 *.exe
 *.o
 .ipynb_checkpoints/
 __pycache__/
 .vscode/
 .history/
+manuscript/
